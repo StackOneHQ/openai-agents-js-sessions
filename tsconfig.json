@@ -1,0 +1,32 @@
+{
+    "compilerOptions": {
+        "module": "ES2020",
+        "moduleResolution": "Node",
+        "lib": ["es2021", "DOM"],
+        "types": ["vitest/globals"],
+        "declaration": true,
+        "removeComments": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true,
+        "target": "es2021",
+        "sourceMap": true,
+        "emitDeclarationOnly": false,
+        "declarationDir": "./dist/types",
+        "outDir": "./dist",
+        "baseUrl": "./",
+        "skipLibCheck": true,
+        "strictNullChecks": true,
+        "noImplicitAny": false,
+        "strictBindCallApply": false,
+        "forceConsistentCasingInFileNames": false,
+        "noFallthroughCasesInSwitch": false,
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "composite": true,
+        "strict": false
+    },
+    "include": ["./src/**/*"],
+    "exclude": ["node_modules", "dist"]
+}
+
