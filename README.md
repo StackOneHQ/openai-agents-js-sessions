@@ -1,6 +1,7 @@
 # @stackone/openai-agents-js-sessions
 
 In-memory, SQLite, and Sequelize sessions for maintaining conversation history with [OpenAI Agents JS SDK](https://openai.github.io/openai-agents-js/).
+This package is based on the [OpenAI Agents Python SDK Sessions](https://openai.github.io/openai-agents-python/sessions/).
 
 ## Features
 
