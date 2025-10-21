@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/StackOneHQ/openai-agents-js-sessions/compare/openai-agents-js-sessions-v0.2.0...openai-agents-js-sessions-v0.2.1) (2025-10-21)
+
+
+### Bug Fixes
+
+* trigger release with updated README documentation ([c602beb](https://github.com/StackOneHQ/openai-agents-js-sessions/commit/c602bebcc44bb7e9f98283da6b1a217ef16c0786))
+
 ## [0.2.0](https://github.com/StackOneHQ/openai-agents-js-sessions/compare/openai-agents-js-sessions-v0.1.0...openai-agents-js-sessions-v0.2.0) (2025-10-21)
 
 
