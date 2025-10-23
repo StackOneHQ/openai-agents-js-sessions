@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/StackOneHQ/openai-agents-js-sessions/compare/openai-agents-js-sessions-v0.2.1...openai-agents-js-sessions-v0.2.2) (2025-10-23)
+
+
+### Bug Fixes
+
+* add CLAUDE.md for AI-assisted development ([69d7f38](https://github.com/StackOneHQ/openai-agents-js-sessions/commit/69d7f38c9b05325e8c3aadb37aa578839acbe29f))
+
 ## [0.2.1](https://github.com/StackOneHQ/openai-agents-js-sessions/compare/openai-agents-js-sessions-v0.2.0...openai-agents-js-sessions-v0.2.1) (2025-10-21)
 
 
