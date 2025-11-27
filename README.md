@@ -1,20 +1,34 @@
 # @stackone/openai-agents-js-sessions
 
-In-memory, SQLite, and Sequelize sessions for maintaining conversation history with [OpenAI Agents JS SDK](https://openai.github.io/openai-agents-js/).
+In-memory and SQLite, PostgreSQL, and MySQL with Drizzle ORM sessions for maintaining conversation history with [OpenAI Agents JS SDK](https://openai.github.io/openai-agents-js/).
 This package is based on the [OpenAI Agents Python SDK Sessions](https://openai.github.io/openai-agents-python/sessions/).
 
 ## Features
 
 - 🔄 Automatic conversation history management
-- 💾 Multiple storage backends (In-Memory, SQLite, Sequelize)
+- 💾 Multiple storage backends (In-Memory, Drizzle ORM)
 - 🔌 Easy integration with OpenAI Agents
 - 🎯 TypeScript support with full type definitions
-- 📦 Zero configuration required for basic usage
+- 📦 Zero configuration required
+- 🗄️ Schema matches Python SDK (agent_sessions + agent_messages tables)
 
 ## Installation
 
 ```bash
 npm install @stackone/openai-agents-js-sessions
+```
+
+For database support, install the appropriate driver:
+
+```bash
+# SQLite
+npm install drizzle-orm better-sqlite3
+
+# PostgreSQL
+npm install drizzle-orm pg
+
+# MySQL
+npm install drizzle-orm mysql2
 ```
 
 ## Quick Start
@@ -29,30 +43,32 @@ import { InMemorySession } from '@stackone/openai-agents-js-sessions';
 const session = new InMemorySession('chat_123');
 ```
 
-### SQLiteSession
+### DrizzleSession
 
-SQLite-backed storage for persistent conversation history.
-
-```typescript
-import { SQLiteSession } from '@stackone/openai-agents-js-sessions';
-
-// Persistent file-based database
-const session = new SQLiteSession('chat_123', 'conversations.db');
-```
-
-### SequelizeSession
-
-Sequelize-powered storage supporting PostgreSQL, MySQL, SQLite, and more.
+Drizzle ORM-powered storage supporting SQLite, PostgreSQL, and MySQL.
+Matches the Python SDK's SQLAlchemySession implementation with two tables:
+- `agent_sessions` - Tracks session metadata (created_at, updated_at)
+- `agent_messages` - Stores conversation messages with timestamps
 
 ```typescript
-import { SequelizeSession } from '@stackone/openai-agents-js-sessions';
+import { DrizzleSession } from '@stackone/openai-agents-js-sessions';
 
-// From URL (PostgreSQL)
-const session = await SequelizeSession.fromUrl(
-  'chat_123',
-  'postgres://user:pass@localhost:5432/mydb',
-  { createTables: true }
-);
+// SQLite
+const session = await DrizzleSession.fromUrl('chat_123', 'sqlite:./sessions.db');
+
+// PostgreSQL
+const session = await DrizzleSession.fromUrl('chat_123', 'postgres://user:pass@localhost:5432/mydb');
+
+// MySQL
+const session = await DrizzleSession.fromUrl('chat_123', 'mysql://user:pass@localhost:3306/mydb');
+
+// With custom configuration
+const session = await DrizzleSession.fromUrl('chat_123', 'postgres://localhost/db', {
+    createTables: true          // Auto-create tables (default: true)
+    maxRetries: 6,              // Maximum connection retry attempts (default: 3)
+    retryDelay: 2000,           // Delay between retries in ms (default: 1000)
+    connectionTimeout: 20000,   // Connection timeout in ms (default: 10000)
+});
 ```
 
 ## Usage with OpenAI Agents JS SDK
@@ -117,6 +133,26 @@ Remove and return the most recent item from the session.
 
 #### `clearSession(): Promise<void>`
 Clear all items for this session.
+
+### DrizzleSession
+
+#### `static fromUrl(sessionId: string, url: string, config?: ConnectionConfig): Promise<DrizzleSession>`
+
+Create a new database-backed session.
+
+- `sessionId` - Unique identifier for this session
+- `url` - Database connection URL:
+  - SQLite: `sqlite::memory:` or `sqlite:./path/to/db.sqlite`
+  - PostgreSQL: `postgres://user:pass@host:port/database`
+  - MySQL: `mysql://user:pass@host:port/database`
+- `config` - Optional connection configuration:
+  - `createTables` - Auto-create tables if they don't exist (default: true)
+  - `maxRetries` - Maximum connection retry attempts (default: 3)
+  - `retryDelay` - Delay between retries in milliseconds (default: 1000)
+  - `connectionTimeout` - Connection timeout in milliseconds (default: 10000)
+
+#### `close(): Promise<void>`
+Close the database connection and release resources (this is handled automatically).
 
 ## Development
 

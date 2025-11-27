@@ -1,8 +1,6 @@
-import { existsSync } from 'node:fs';
-import { unlink } from 'node:fs/promises';
 import type { AgentInputItem } from '@openai/agents';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { InMemorySession, SQLiteSession, SequelizeSession } from './index';
+import { DrizzleSession, InMemorySession } from './index';
 
 // Helper functions to create test messages
 const user = (content: string): AgentInputItem => ({
@@ -70,145 +68,29 @@ describe('InMemorySession', () => {
     });
 });
 
-describe('SQLiteSession', () => {
-    const testDbPath = './test_sessions.db';
-    let session: SQLiteSession;
-
-    afterEach(() => {
-        if (session) {
-            session.close();
-        }
-        // Clean up test database
-        if (existsSync(testDbPath)) {
-            unlink(testDbPath).catch(() => {
-                // Ignore cleanup errors
-            });
-        }
-    });
-
-    it('should create in-memory database', async () => {
-        session = new SQLiteSession('test_session');
-        const items = await session.getItems();
-        expect(items).toHaveLength(0);
-    });
-
-    it('should create persistent database', async () => {
-        session = new SQLiteSession('test_session', testDbPath);
-        await session.addItems([user('Hello')]);
-
-        const items = await session.getItems();
-        expect(items).toHaveLength(1);
-    });
-
-    it('should add items', async () => {
-        session = new SQLiteSession('test_session');
-        await session.addItems([user('Hello'), assistant('Hi')]);
-
-        const items = await session.getItems();
-        expect(items).toHaveLength(2);
-    });
-
-    it('should retrieve items with limit', async () => {
-        session = new SQLiteSession('test_session');
-        await session.addItems([
-            user('Message 1'),
-            assistant('Response 1'),
-            user('Message 2'),
-            assistant('Response 2'),
-        ]);
-
-        const recentItems = await session.getItems(2);
-        expect(recentItems).toHaveLength(2);
-        expect(recentItems[0]).toEqual(user('Message 2'));
-    });
-
-    it('should pop items', async () => {
-        session = new SQLiteSession('test_session');
-        await session.addItems([user('Hello'), assistant('Hi')]);
-
-        const popped = await session.popItem();
-        expect(popped).toEqual(assistant('Hi'));
-
-        const remaining = await session.getItems();
-        expect(remaining).toHaveLength(1);
-    });
-
-    it('should clear session', async () => {
-        session = new SQLiteSession('test_session');
-        await session.addItems([user('Hello'), assistant('Hi')]);
-        await session.clearSession();
-
-        const items = await session.getItems();
-        expect(items).toHaveLength(0);
-    });
-
-    it('should support multiple sessions in same database', async () => {
-        const session1 = new SQLiteSession('session_1', testDbPath);
-        const session2 = new SQLiteSession('session_2', testDbPath);
-
-        await session1.addItems([user('Hello from session 1')]);
-        await session2.addItems([user('Hello from session 2')]);
-
-        const items1 = await session1.getItems();
-        const items2 = await session2.getItems();
-
-        expect(items1).toHaveLength(1);
-        expect(items2).toHaveLength(1);
-        expect(items1[0]).toEqual(user('Hello from session 1'));
-        expect(items2[0]).toEqual(user('Hello from session 2'));
-
-        session1.close();
-        session2.close();
-    });
-
-    it('should get length', async () => {
-        session = new SQLiteSession('test_session');
-        await session.addItems([user('Hello'), assistant('Hi')]);
-
-        const length = await session.getLength();
-        expect(length).toBe(2);
-    });
-});
-
-describe('SequelizeSession', () => {
-    let session: SequelizeSession;
-    const sessionsToClose: SequelizeSession[] = [];
+describe('DrizzleSession - SQLite', () => {
+    let session: DrizzleSession;
+    const sessionsToClose: DrizzleSession[] = [];
 
     afterEach(async () => {
-        // Close any sessions that were added to the cleanup list
         for (const s of sessionsToClose) {
-            try {
-                await s.close();
-            } catch {
-                // Ignore errors during cleanup
-            }
+            await s.close().catch(() => {});
         }
         sessionsToClose.length = 0;
 
-        // Close the main session if it exists
         if (session) {
-            try {
-                await session.close();
-            } catch {
-                // Ignore errors during cleanup
-            }
+            await session.close().catch(() => {});
         }
     });
 
     it('should create from URL with in-memory SQLite', async () => {
-        session = await SequelizeSession.fromUrl('test_session', 'sqlite::memory:', {
-            createTables: true,
-        });
-
+        session = await DrizzleSession.fromUrl('test_session', 'sqlite::memory:');
         const items = await session.getItems();
         expect(items).toHaveLength(0);
     });
 
     it('should add items', async () => {
-        session = await SequelizeSession.fromUrl('test_session', 'sqlite::memory:', {
-            createTables: true,
-        });
-
+        session = await DrizzleSession.fromUrl('test_session', 'sqlite::memory:');
         await session.addItems([user('Hello'), assistant('Hi')]);
 
         const items = await session.getItems();
@@ -216,10 +98,7 @@ describe('SequelizeSession', () => {
     });
 
     it('should retrieve items with limit', async () => {
-        session = await SequelizeSession.fromUrl('test_session', 'sqlite::memory:', {
-            createTables: true,
-        });
-
+        session = await DrizzleSession.fromUrl('test_session', 'sqlite::memory:');
         await session.addItems([
             user('Message 1'),
             assistant('Response 1'),
@@ -233,10 +112,7 @@ describe('SequelizeSession', () => {
     });
 
     it('should pop items', async () => {
-        session = await SequelizeSession.fromUrl('test_session', 'sqlite::memory:', {
-            createTables: true,
-        });
-
+        session = await DrizzleSession.fromUrl('test_session', 'sqlite::memory:');
         await session.addItems([user('Hello'), assistant('Hi')]);
 
         const popped = await session.popItem();
@@ -247,10 +123,7 @@ describe('SequelizeSession', () => {
     });
 
     it('should clear session', async () => {
-        session = await SequelizeSession.fromUrl('test_session', 'sqlite::memory:', {
-            createTables: true,
-        });
-
+        session = await DrizzleSession.fromUrl('test_session', 'sqlite::memory:');
         await session.addItems([user('Hello'), assistant('Hi')]);
         await session.clearSession();
 
@@ -258,39 +131,139 @@ describe('SequelizeSession', () => {
         expect(items).toHaveLength(0);
     });
 
-    it('should get length', async () => {
-        session = await SequelizeSession.fromUrl('test_session', 'sqlite::memory:', {
-            createTables: true,
-        });
-
-        await session.addItems([user('Hello'), assistant('Hi')]);
-
-        const length = await session.getLength();
-        expect(length).toBe(2);
+    it('should return undefined when popping from empty session', async () => {
+        session = await DrizzleSession.fromUrl('test_session', 'sqlite::memory:');
+        const popped = await session.popItem();
+        expect(popped).toBeUndefined();
     });
 
-    it('should support multiple sessions', async () => {
-        const session1 = await SequelizeSession.fromUrl('session_1', 'sqlite::memory:', {
-            createTables: true,
-        });
-        sessionsToClose.push(session1);
+    it('should handle empty addItems', async () => {
+        session = await DrizzleSession.fromUrl('test_session', 'sqlite::memory:');
+        await session.addItems([]);
+        const items = await session.getItems();
+        expect(items).toHaveLength(0);
+    });
 
-        const session2 = await SequelizeSession.fromSequelize(
-            'session_2',
-            session1.getSequelize(),
-            { createTables: false }, // Tables already created
+    it('should throw on unsupported database URL', async () => {
+        await expect(DrizzleSession.fromUrl('test', 'mongodb://localhost')).rejects.toThrow(
+            'Unsupported database',
         );
-        // Don't add session2 to cleanup - it doesn't own the Sequelize instance
+    });
 
-        await session1.addItems([user('Hello from session 1')]);
-        await session2.addItems([user('Hello from session 2')]);
+    it('should handle multiple sessions in same database', async () => {
+        const session1 = await DrizzleSession.fromUrl('session_1', 'sqlite::memory:');
+        const session2 = await DrizzleSession.fromUrl('session_2', 'sqlite::memory:');
+        sessionsToClose.push(session1, session2);
+
+        await session1.addItems([user('Session 1 message')]);
+        await session2.addItems([user('Session 2 message')]);
 
         const items1 = await session1.getItems();
         const items2 = await session2.getItems();
 
         expect(items1).toHaveLength(1);
         expect(items2).toHaveLength(1);
-        expect(items1[0]).toEqual(user('Hello from session 1'));
-        expect(items2[0]).toEqual(user('Hello from session 2'));
+        expect(items1[0]).toEqual(user('Session 1 message'));
+        expect(items2[0]).toEqual(user('Session 2 message'));
+    });
+
+    it('should handle large number of items with limit', async () => {
+        session = await DrizzleSession.fromUrl('test_session', 'sqlite::memory:');
+        const items = Array.from({ length: 100 }, (_, i) => user(`Message ${i}`));
+        await session.addItems(items);
+
+        const recentItems = await session.getItems(10);
+        expect(recentItems).toHaveLength(10);
+        expect(recentItems[0]).toEqual(user('Message 90'));
+        expect(recentItems[9]).toEqual(user('Message 99'));
+    });
+
+    it('should maintain chronological order', async () => {
+        session = await DrizzleSession.fromUrl('test_session', 'sqlite::memory:');
+        await session.addItems([user('First'), user('Second'), user('Third')]);
+
+        const items = await session.getItems();
+        expect(items[0]).toEqual(user('First'));
+        expect(items[1]).toEqual(user('Second'));
+        expect(items[2]).toEqual(user('Third'));
+    });
+
+    it('should handle pop with race condition protection', async () => {
+        session = await DrizzleSession.fromUrl('test_session', 'sqlite::memory:');
+        await session.addItems([user('Message 1'), user('Message 2')]);
+
+        const popped1 = await session.popItem();
+        const popped2 = await session.popItem();
+
+        expect(popped1).toEqual(user('Message 2'));
+        expect(popped2).toEqual(user('Message 1'));
+
+        const remaining = await session.getItems();
+        expect(remaining).toHaveLength(0);
+    });
+
+    it('should handle limit greater than total items', async () => {
+        session = await DrizzleSession.fromUrl('test_session', 'sqlite::memory:');
+        await session.addItems([user('Message 1'), user('Message 2')]);
+
+        const items = await session.getItems(10);
+        expect(items).toHaveLength(2);
+    });
+
+    it('should handle limit of 0', async () => {
+        session = await DrizzleSession.fromUrl('test_session', 'sqlite::memory:');
+        await session.addItems([user('Message 1'), user('Message 2')]);
+
+        const items = await session.getItems(0);
+        expect(items).toHaveLength(0);
+    });
+
+    it('should create session with custom config', async () => {
+        session = await DrizzleSession.fromUrl('test_session', 'sqlite::memory:', {
+            maxRetries: 5,
+            retryDelay: 500,
+            connectionTimeout: 5000,
+        });
+
+        await session.addItems([user('Hello')]);
+        const items = await session.getItems();
+        expect(items).toHaveLength(1);
+    });
+
+    it('should support createTables option', async () => {
+        session = await DrizzleSession.fromUrl('test_session', 'sqlite::memory:', {
+            createTables: false,
+        });
+
+        // Should fail because tables don't exist
+        await expect(session.addItems([user('Hello')])).rejects.toThrow();
+    });
+});
+
+describe('DrizzleSession - Error Handling', () => {
+    let session: DrizzleSession;
+
+    afterEach(async () => {
+        if (session) {
+            await session.close().catch(() => {});
+        }
+    });
+
+    it('should handle invalid SQLite path gracefully', async () => {
+        await expect(
+            DrizzleSession.fromUrl('test', 'sqlite:/invalid/path/that/does/not/exist.db'),
+        ).rejects.toThrow('Failed to create SQLite session');
+    });
+
+    it('should throw error with descriptive message on invalid URL', async () => {
+        await expect(DrizzleSession.fromUrl('test', 'invalid://url')).rejects.toThrow(
+            'Unsupported database URL',
+        );
+    });
+
+    it('should handle close after close', async () => {
+        session = await DrizzleSession.fromUrl('test_session', 'sqlite::memory:');
+        await session.close();
+        await expect(session.close()).resolves.toBeUndefined();
     });
 });

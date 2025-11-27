@@ -7,6 +7,7 @@
     "types": "dist/types/src/index.d.ts",
     "files": [
         "dist",
+        "drizzle",
         "package.json",
         "README.md"
     ],
@@ -16,12 +17,12 @@
         "build": "rollup -c --environment NODE_ENV:production",
         "prebuild:dev": "npm run clean",
         "build:dev": "rollup -c --environment NODE_ENV:development",
-        "code:format": "biome format ./src ./*.mjs",
-        "code:format:fix": "biome format --write ./src ./*.mjs",
-        "code:lint": "biome lint --error-on-warnings ./src ./*.mjs",
-        "code:lint:fix": "biome lint --write ./src ./*.mjs",
-        "code:check": "biome check ./src ./*.mjs",
-        "code:check:fix": "biome check --write ./src ./*.mjs",
+        "code:format": "biome format ./src ./*.mjs ./*.ts",
+        "code:format:fix": "biome format --write ./src ./*.mjs ./*.ts",
+        "code:lint": "biome lint --error-on-warnings ./src ./*.mjs ./*.ts",
+        "code:lint:fix": "biome lint --write ./src ./*.mjs ./*.ts",
+        "code:check": "biome check ./src ./*.mjs ./*.ts",
+        "code:check:fix": "biome check --write ./src ./*.mjs ./*.ts",
         "lint": "npm run code:check",
         "lint:fix": "npm run code:check:fix",
         "test": "vitest run --silent",
@@ -53,20 +54,27 @@
         "npm": "10.8.2"
     },
     "peerDependencies": {
-        "@openai/agents": ">=0.0.1"
+        "@openai/agents": ">=0.0.1",
+        "drizzle-orm": ">=0.38.0",
+        "better-sqlite3": ">=11.0.0",
+        "pg": ">=8.0.0",
+        "mysql2": ">=3.0.0"
     },
     "peerDependenciesMeta": {
+        "drizzle-orm": {
+            "optional": true
+        },
         "better-sqlite3": {
             "optional": true
         },
-        "sequelize": {
+        "pg": {
+            "optional": true
+        },
+        "mysql2": {
             "optional": true
         }
     },
-    "dependencies": {
-        "better-sqlite3": "^11.8.0",
-        "sequelize": "^6.37.5"
-    },
+    "dependencies": {},
     "devDependencies": {
         "@biomejs/biome": "^1.9.4",
         "@commitlint/cli": "^19.6.1",
@@ -78,12 +86,17 @@
         "@rollup/plugin-terser": "^0.4.4",
         "@types/better-sqlite3": "^7.6.12",
         "@types/node": "^20.17.10",
+        "@types/pg": "^8.11.6",
         "@vitest/coverage-v8": "^3.2.4",
+        "better-sqlite3": "^11.8.0",
+        "drizzle-kit": "^0.30.0",
+        "drizzle-orm": "^0.38.0",
         "husky": "^9.1.7",
+        "mysql2": "^3.11.0",
+        "pg": "^8.13.0",
         "rimraf": "^6.0.1",
         "rollup": "^4.28.1",
         "rollup-plugin-typescript2": "^0.36.0",
-        "sqlite3": "^5.1.7",
         "tslib": "^2.8.1",
         "typescript": "^5.7.2",
         "unplugin-swc": "^1.5.1",

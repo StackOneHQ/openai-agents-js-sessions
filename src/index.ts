@@ -11,53 +11,31 @@
  *
  * @example
  * ```typescript
- * import { InMemorySession } from './memory';
+ * import { InMemorySession } from '@stackone/openai-agents-js-sessions';
  *
  * const session = new InMemorySession('user_123');
  * ```
  *
- * ### SQLiteSession
- * SQLite-backed storage for persistent conversation history.
+ * ### DrizzleSession
+ * Database-backed storage using Drizzle ORM. Supports SQLite, PostgreSQL, and MySQL.
  *
  * @example
  * ```typescript
- * import { SQLiteSession } from './memory';
+ * import { DrizzleSession } from '@stackone/openai-agents-js-sessions';
  *
- * // In-memory database
- * const session = new SQLiteSession('user_123');
+ * // SQLite
+ * const session = await DrizzleSession.fromUrl('user_123', 'sqlite:./data.db');
  *
- * // Persistent file-based database
- * const session = new SQLiteSession('user_123', 'conversations.db');
- * ```
+ * // PostgreSQL
+ * const session = await DrizzleSession.fromUrl('user_123', 'postgres://localhost/db');
  *
- * ### SequelizeSession
- * Sequelize-powered storage supporting PostgreSQL, MySQL, SQLite, and more.
- * This is the JavaScript/TypeScript equivalent of Python's SQLAlchemySession.
- *
- * @example
- * ```typescript
- * import { SequelizeSession } from './memory';
- *
- * // From URL (PostgreSQL)
- * const session = await SequelizeSession.fromUrl(
- *   'user_123',
- *   'postgres://user:pass@localhost:5432/mydb',
- *   { createTables: true }
- * );
- *
- * // From existing Sequelize instance
- * const sequelize = new Sequelize('sqlite::memory:');
- * const session = await SequelizeSession.fromSequelize(
- *   'user_123',
- *   sequelize,
- *   { createTables: true }
- * );
+ * // MySQL
+ * const session = await DrizzleSession.fromUrl('user_123', 'mysql://localhost/db');
  * ```
  *
  * @module memory
  */
 
+export { DrizzleSession } from './drizzle-session';
 export { InMemorySession } from './in-memory-session';
-export { SequelizeSession } from './sequelize-session';
 export { Session, SessionBase } from './session';
-export { SQLiteSession } from './sqlite-session';
