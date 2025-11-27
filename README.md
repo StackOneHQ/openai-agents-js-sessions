@@ -26,7 +26,7 @@ In-memory storage (data lost when process ends). Ideal for development and testi
 ```typescript
 import { InMemorySession } from '@stackone/openai-agents-js-sessions';
 
-const session = new InMemorySession('user_123');
+const session = new InMemorySession('chat_123');
 ```
 
 ### SQLiteSession
@@ -36,11 +36,8 @@ SQLite-backed storage for persistent conversation history.
 ```typescript
 import { SQLiteSession } from '@stackone/openai-agents-js-sessions';
 
-// In-memory database
-const session = new SQLiteSession('user_123');
-
 // Persistent file-based database
-const session = new SQLiteSession('user_123', 'conversations.db');
+const session = new SQLiteSession('chat_123', 'conversations.db');
 ```
 
 ### SequelizeSession
@@ -52,16 +49,8 @@ import { SequelizeSession } from '@stackone/openai-agents-js-sessions';
 
 // From URL (PostgreSQL)
 const session = await SequelizeSession.fromUrl(
-  'user_123',
+  'chat_123',
   'postgres://user:pass@localhost:5432/mydb',
-  { createTables: true }
-);
-
-// From existing Sequelize instance
-const sequelize = new Sequelize('sqlite::memory:');
-const session = await SequelizeSession.fromSequelize(
-  'user_123',
-  sequelize,
   { createTables: true }
 );
 ```
@@ -76,11 +65,11 @@ import { InMemorySession } from '@stackone/openai-agents-js-sessions';
 const agent = new Agent({
   name: 'Customer Support',
   instructions: 'You are a helpful customer support assistant.',
-  model: 'gpt-4.1',
+  model: 'gpt-5.1',
 });
 
 // Create a session
-const sessionId = 'abc_123';
+const sessionId = 'chat_123';
 const session = new InMemorySession(sessionId);
 
 // First conversation turn
