@@ -1,6 +1,6 @@
 {
     "name": "@stackone/openai-agents-js-sessions",
-    "version": "0.2.2",
+    "version": "1.0.0",
     "description": "Session memory module for managing conversation history across multiple OpenAI agent runs",
     "main": "dist/index.js",
     "module": "dist/index.es.mjs",
@@ -103,4 +103,3 @@
         "vitest": "^3.2.4"
     }
 }
-
