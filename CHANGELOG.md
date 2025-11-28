@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/StackOneHQ/openai-agents-js-sessions/compare/openai-agents-js-sessions-v0.2.2...openai-agents-js-sessions-v0.3.0) (2025-11-28)
+
+
+### Features
+
+* migrate to Drizzle ORM ([b74c9ce](https://github.com/StackOneHQ/openai-agents-js-sessions/commit/b74c9ce8d32aed6ddd7695facfa642f61d2d81a8))
+
 ## [0.2.2](https://github.com/StackOneHQ/openai-agents-js-sessions/compare/openai-agents-js-sessions-v0.2.1...openai-agents-js-sessions-v0.2.2) (2025-10-23)
 
 
