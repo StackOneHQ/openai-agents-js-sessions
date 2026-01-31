@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.0](https://github.com/StackOneHQ/openai-agents-js-sessions/compare/openai-agents-js-sessions-v0.3.0...openai-agents-js-sessions-v0.4.0) (2026-01-31)
+
+
+### Features
+
+* **ENG-11298:** Pinning GitHub actions ([1631a3a](https://github.com/StackOneHQ/openai-agents-js-sessions/commit/1631a3af74dbdcdfa3c71508f0b24acffa7bd8fc))
+
+
+### Bug Fixes
+
+* **ENG-11932:** adding ssl connection support ([924f0e4](https://github.com/StackOneHQ/openai-agents-js-sessions/commit/924f0e488cca0a5086a0b634010d49c94274ec98))
+
 ## [0.3.0](https://github.com/StackOneHQ/openai-agents-js-sessions/compare/openai-agents-js-sessions-v0.2.2...openai-agents-js-sessions-v0.3.0) (2025-11-28)
 
 
