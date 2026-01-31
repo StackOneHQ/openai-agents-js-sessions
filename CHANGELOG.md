@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.1](https://github.com/StackOneHQ/openai-agents-js-sessions/compare/openai-agents-js-sessions-v0.4.0...openai-agents-js-sessions-v0.4.1) (2026-01-31)
+
+
+### Bug Fixes
+
+* correcting readme ([b399e59](https://github.com/StackOneHQ/openai-agents-js-sessions/commit/b399e59e4a5c75f6a0eff7b8f81c9e6087e2ec89))
+* **ENG-11953:** correcting readme ([6d0e6fd](https://github.com/StackOneHQ/openai-agents-js-sessions/commit/6d0e6fda7bfe7b0aba343cd74d27529ebca98232))
+
 ## [0.4.0](https://github.com/StackOneHQ/openai-agents-js-sessions/compare/openai-agents-js-sessions-v0.3.0...openai-agents-js-sessions-v0.4.0) (2026-01-31)
 
 
