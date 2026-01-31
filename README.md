@@ -11,6 +11,7 @@ This package is based on the [OpenAI Agents Python SDK Sessions](https://openai.
 - 🎯 TypeScript support with full type definitions
 - 📦 Zero configuration required
 - 🗄️ Schema matches Python SDK (agent_sessions + agent_messages tables)
+- 🔒 SSL/TLS support for secure PostgreSQL connections (AWS RDS, Azure, etc.)
 
 ## Installation
 
@@ -64,12 +65,84 @@ const session = await DrizzleSession.fromUrl('chat_123', 'mysql://user:pass@loca
 
 // With custom configuration
 const session = await DrizzleSession.fromUrl('chat_123', 'postgres://localhost/db', {
-    createTables: true          // Auto-create tables (default: true)
+    createTables: true,         // Auto-create tables (default: true)
     maxRetries: 6,              // Maximum connection retry attempts (default: 3)
     retryDelay: 2000,           // Delay between retries in ms (default: 1000)
     connectionTimeout: 20000,   // Connection timeout in ms (default: 10000)
 });
 ```
+
+### SSL/TLS Configuration (PostgreSQL)
+
+For secure PostgreSQL connections (e.g., AWS RDS, Azure Database for PostgreSQL), you can configure SSL/TLS:
+
+```typescript
+import { DrizzleSession } from '@stackone/openai-agents-js-sessions';
+import fs from 'node:fs';
+
+// Basic SSL (encrypted connection, no certificate verification)
+const session = await DrizzleSession.fromUrl(
+    'chat_123',
+    'postgres://user:pass@host:5432/db',
+    {
+        ssl: true
+    }
+);
+
+// SSL with certificate verification (recommended for production)
+const session = await DrizzleSession.fromUrl(
+    'chat_123',
+    'postgres://user:pass@rds-endpoint.amazonaws.com:5432/mydb',
+    {
+        ssl: {
+            rejectUnauthorized: true,
+            ca: fs.readFileSync('./rds-ca.pem', 'utf8'),
+        }
+    }
+);
+
+// SSL with client certificates (mutual TLS)
+const session = await DrizzleSession.fromUrl(
+    'chat_123',
+    'postgres://user:pass@host:5432/db',
+    {
+        ssl: {
+            rejectUnauthorized: true,
+            ca: fs.readFileSync('./ca-cert.pem', 'utf8'),
+            cert: fs.readFileSync('./client-cert.pem', 'utf8'),
+            key: fs.readFileSync('./client-key.pem', 'utf8'),
+        }
+    }
+);
+```
+
+#### AWS RDS Example
+
+For AWS RDS PostgreSQL, download the certificate bundle from [AWS Documentation](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.SSL.html):
+
+```typescript
+import { DrizzleSession } from '@stackone/openai-agents-js-sessions';
+import fs from 'node:fs';
+
+const session = await DrizzleSession.fromUrl(
+    'chat_123',
+    `postgres://${username}:${password}@${rdsEndpoint}:5432/${database}`,
+    {
+        ssl: {
+            rejectUnauthorized: true,
+            ca: fs.readFileSync('./rds-ca-2019-root.pem', 'utf8'),
+        }
+    }
+);
+```
+
+**SSL Configuration Options:**
+- `ssl: true` - Enable SSL without certificate verification (encrypted but less secure)
+- `ssl: { ... }` - Configure SSL with certificate verification:
+  - `rejectUnauthorized` - Verify server certificate (default: true, recommended)
+  - `ca` - Certificate Authority certificate(s)
+  - `cert` - Client certificate for mutual TLS (optional)
+  - `key` - Client private key for mutual TLS (optional)
 
 ## Usage with OpenAI Agents JS SDK
 
@@ -150,6 +223,9 @@ Create a new database-backed session.
   - `maxRetries` - Maximum connection retry attempts (default: 3)
   - `retryDelay` - Delay between retries in milliseconds (default: 1000)
   - `connectionTimeout` - Connection timeout in milliseconds (default: 10000)
+  - `ssl` - PostgreSQL SSL configuration (boolean or object):
+    - `true` - Enable SSL without certificate verification
+    - Object with `rejectUnauthorized`, `ca`, `cert`, `key` - Configure SSL with certificate verification
 
 #### `close(): Promise<void>`
 Close the database connection and release resources (this is handled automatically).
