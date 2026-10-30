@@ -43,14 +43,30 @@ interface MysqlExecutor {
 
 type DatabaseExecutor = SqliteExecutor | PgExecutor | MysqlExecutor;
 
+interface PostgresSslConfig {
+    rejectUnauthorized?: boolean;
+    ca?: string | Buffer;
+    cert?: string | Buffer;
+    key?: string | Buffer;
+}
+
 interface ConnectionConfig {
     createTables?: boolean;
     maxRetries?: number;
     retryDelay?: number;
     connectionTimeout?: number;
+    ssl?: PostgresSslConfig | boolean;
 }
 
-const DEFAULT_CONFIG: Required<ConnectionConfig> = {
+interface ResolvedConnectionConfig {
+    createTables: boolean;
+    maxRetries: number;
+    retryDelay: number;
+    connectionTimeout: number;
+    ssl?: PostgresSslConfig | boolean;
+}
+
+const DEFAULT_CONFIG: Omit<ResolvedConnectionConfig, 'ssl'> = {
     createTables: true,
     maxRetries: 3,
     retryDelay: 1000,
@@ -80,10 +96,18 @@ const DEFAULT_CONFIG: Required<ConnectionConfig> = {
  *
  * // With custom configuration
  * const session = await DrizzleSession.fromUrl('chat_123', 'postgres://...', {
- *     createTables: false  // Assumes tables exist
+ *     createTables: false,  // Assumes tables exist
  *     maxRetries: 5,
  *     retryDelay: 2000,
  *     connectionTimeout: 15000,
+ * });
+ *
+ * // PostgreSQL with SSL (for AWS RDS, etc.)
+ * const session = await DrizzleSession.fromUrl('chat_123', 'postgres://...', {
+ *     ssl: {
+ *         rejectUnauthorized: true,
+ *         ca: fs.readFileSync('/path/to/rds-ca.pem', 'utf8'),
+ *     }
  * });
  *
  * // Use the session
@@ -119,6 +143,11 @@ export class DrizzleSession extends SessionBase {
      *   - PostgreSQL: `postgres://user:pass@host:port/database`
      *   - MySQL: `mysql://user:pass@host:port/database`
      * @param config - Optional connection configuration
+     *   - `createTables`: Create tables if they don't exist (default: true)
+     *   - `maxRetries`: Max connection attempts (default: 3)
+     *   - `retryDelay`: Delay between retries in ms (default: 1000)
+     *   - `connectionTimeout`: Connection timeout in ms (default: 10000)
+     *   - `ssl`: PostgreSQL SSL configuration (boolean or object with rejectUnauthorized, ca, cert, key)
      */
     static async fromUrl(
         sessionId: string,
@@ -146,7 +175,7 @@ export class DrizzleSession extends SessionBase {
     private static async createSqliteSession(
         sessionId: string,
         path: string,
-        config: Required<ConnectionConfig>,
+        config: ResolvedConnectionConfig,
     ): Promise<DrizzleSession> {
         try {
             const Database = (await import('better-sqlite3')).default;
@@ -182,12 +211,13 @@ export class DrizzleSession extends SessionBase {
     private static async createPostgresSession(
         sessionId: string,
         url: string,
-        config: Required<ConnectionConfig>,
+        config: ResolvedConnectionConfig,
     ): Promise<DrizzleSession> {
         const { default: pg } = await import('pg');
         const pool = new pg.Pool({
             connectionString: url,
             connectionTimeoutMillis: config.connectionTimeout,
+            ...(config.ssl ? { ssl: config.ssl } : {}),
         });
 
         let retries = 0;
@@ -230,7 +260,7 @@ export class DrizzleSession extends SessionBase {
     private static async createMysqlSession(
         sessionId: string,
         url: string,
-        config: Required<ConnectionConfig>,
+        config: ResolvedConnectionConfig,
     ): Promise<DrizzleSession> {
         const mysql = await import('mysql2/promise');
         const pool = mysql.createPool({
