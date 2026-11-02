@@ -87,7 +87,7 @@
         "@types/better-sqlite3": "^7.6.12",
         "@types/node": "^20.17.10",
         "@types/pg": "^8.11.6",
-        "@vitest/coverage-v8": "^3.2.4",
+        "@vitest/coverage-v8": "^5.0.5",
         "better-sqlite3": "^11.8.0",
         "drizzle-kit": "^0.30.0",
         "drizzle-orm": "^0.38.0",
@@ -100,6 +100,6 @@
         "tslib": "^2.8.1",
         "typescript": "^5.7.2",
         "unplugin-swc": "^1.5.1",
-        "vitest": "^3.2.4"
+        "vitest": "^5.0.5"
     }
 }
