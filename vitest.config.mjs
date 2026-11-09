@@ -16,5 +16,6 @@ export default defineConfig({
         },
         clearMocks: true,
     },
+    oxc: false,
     plugins: [swc.vite()],
 });
