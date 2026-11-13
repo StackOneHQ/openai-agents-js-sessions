@@ -90,7 +90,7 @@
         "@vitest/coverage-v8": "^5.1.0",
         "better-sqlite3": "^11.8.0",
         "drizzle-kit": "^0.30.0",
-        "drizzle-orm": "^0.38.0",
+        "drizzle-orm": "^0.45.2",
         "husky": "^9.1.7",
         "mysql2": "^3.11.0",
         "pg": "^8.13.0",
