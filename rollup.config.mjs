@@ -25,6 +25,7 @@ export default {
         json(),
         typescript({
             clean: true,
+            include: ['**/*.ts', '**/*.tsx', '**/*.cts', '**/*.mts'],
             useTsconfigDeclarationDir: true,
             tsconfigOverride: {
                 exclude: ['**/*.spec.ts'],
